@@ -1,0 +1,372 @@
+<style>
+  :root{
+    --bg: #12181a;
+    --panel: #182022;
+    --panel-raised: #1e2729;
+    --line: #2a3538;
+    --ink: #eef2f0;
+    --ink-dim: #9fb0ab;
+    --accent: #4fb3a0;
+    --accent-soft: rgba(79,179,160,0.14);
+    --warn: #d98a4f;
+    --mono: 'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --radius: 3px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin:0; background: var(--bg); color: var(--ink);
+    font-family: var(--sans); font-size: 14px; line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  .hero {
+    display:flex; align-items:flex-end; justify-content:space-between;
+    border-bottom: 1px solid var(--line); padding-bottom: 20px; margin-bottom: 28px;
+    gap: 20px; flex-wrap: wrap;
+  }
+  .hero-mark {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  h1 {
+    font-family: var(--sans); font-weight: 600; font-size: 26px; margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .hero-sub { color: var(--ink-dim); font-size: 13px; margin-top: 6px; max-width: 46ch; }
+  .count-badge {
+    font-family: var(--mono); font-size: 12px; color: var(--ink-dim);
+    border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 6px 10px; white-space: nowrap;
+  }
+  .count-badge b { color: var(--accent); font-weight: 600; }
+
+  .panel {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 20px; margin-bottom: 20px;
+  }
+  .field { margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+  label {
+    display:block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--ink-dim); margin-bottom: 6px; font-family: var(--mono);
+  }
+  .hint { color: var(--ink-dim); font-size: 12px; margin-top: 6px; }
+  .hint a { color: var(--accent); }
+  input[type=text], input[type=password] {
+    width: 100%; background: var(--bg); border: 1px solid var(--line); color: var(--ink);
+    padding: 10px 12px; border-radius: var(--radius); font-family: var(--mono); font-size: 13px;
+    outline: none; transition: border-color .15s;
+  }
+  input:focus { border-color: var(--accent); }
+  .row { display:flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+  .row .field { flex: 1; min-width: 220px; }
+
+  button {
+    font-family: var(--sans); font-weight: 600; font-size: 13px; cursor: pointer;
+    border-radius: var(--radius); border: 1px solid transparent; padding: 10px 18px;
+    transition: opacity .15s, transform .1s;
+  }
+  button:active { transform: translateY(1px); }
+  .btn-primary { background: var(--accent); color: #0b1211; }
+  .btn-primary:hover { opacity: .88; }
+  .btn-primary:disabled { opacity: .35; cursor: not-allowed; }
+  .btn-ghost { background: transparent; color: var(--ink-dim); border-color: var(--line); }
+  .btn-ghost:hover { color: var(--ink); border-color: var(--ink-dim); }
+
+  .status { font-family: var(--mono); font-size: 12px; color: var(--ink-dim); margin-top: 12px; min-height: 16px; }
+  .status.err { color: var(--warn); }
+
+  .toolbar { display:flex; justify-content: space-between; align-items:center; margin-bottom: 12px; gap: 12px; flex-wrap: wrap; }
+  .toolbar-actions { display:flex; gap: 8px; }
+
+  table { width:100%; border-collapse: collapse; }
+  thead th {
+    text-align:left; font-family: var(--mono); font-size: 11px; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--ink-dim); border-bottom: 1px solid var(--line);
+    padding: 8px 10px; font-weight: 500;
+  }
+  thead th.num { width: 40px; }
+  tbody td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tbody tr:hover { background: var(--panel-raised); }
+  .idx { color: var(--ink-dim); font-family: var(--mono); font-size: 12px; }
+  .vid-title { color: var(--ink); }
+  .vid-url { font-family: var(--mono); font-size: 12px; }
+  .vid-url a { color: var(--accent); text-decoration: none; word-break: break-all; }
+  .vid-url a:hover { text-decoration: underline; }
+  .copy-row { background: none; border: none; color: var(--ink-dim); cursor: pointer; padding: 2px 6px; font-size: 12px; }
+  .copy-row:hover { color: var(--accent); }
+
+  .empty {
+    text-align:center; padding: 48px 20px; color: var(--ink-dim); font-size: 13px;
+    border: 1px dashed var(--line); border-radius: 6px;
+  }
+
+  .weave { display:flex; gap: 3px; margin-top: 6px; }
+  .weave span { width: 5px; height: 5px; background: var(--line); transform: rotate(45deg); }
+</style>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div>
+      <div class="hero-mark">Channel → Catalogue</div>
+      <h1>Video Harvester</h1>
+      <div class="hero-sub">Point it at a YouTube channel, get every title and video URL back as a clean list.</div>
+      <div class="weave" id="weave"></div>
+    </div>
+    <div class="count-badge" id="countBadge">no channel loaded</div>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="apiKey">YouTube Data API key</label>
+        <input type="password" id="apiKey" placeholder="AIza..." autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="channelInput">Channel handle, URL, or ID</label>
+        <input type="text" id="channelInput" placeholder="@channelname or full URL" autocomplete="off" />
+      </div>
+      <button class="btn-primary" id="fetchBtn">Fetch videos</button>
+    </div>
+    <div class="hint">
+      Key stays in this page only — nothing is stored or sent anywhere but Google's API. Get a free key from the
+      <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Google Cloud Console</a>
+      with the YouTube Data API v3 enabled.
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <div id="resultsArea"></div>
+
+</div>
+
+<script>
+(function(){
+  const apiKeyInput = document.getElementById('apiKey');
+  const channelInput = document.getElementById('channelInput');
+  const fetchBtn = document.getElementById('fetchBtn');
+  const statusEl = document.getElementById('status');
+  const resultsArea = document.getElementById('resultsArea');
+  const countBadge = document.getElementById('countBadge');
+  const weave = document.getElementById('weave');
+
+  for (let i=0;i<9;i++){ const s=document.createElement('span'); weave.appendChild(s); }
+
+  let videos = []; // { title, videoId, url }
+  let channelTitle = '';
+
+  function setStatus(msg, isErr){
+    statusEl.textContent = msg || '';
+    statusEl.className = 'status' + (isErr ? ' err' : '');
+  }
+
+  function setBusy(busy){
+    fetchBtn.disabled = busy;
+    fetchBtn.textContent = busy ? 'Fetching…' : 'Fetch videos';
+  }
+
+  function parseChannelInput(raw){
+    const val = raw.trim();
+    if (!val) return null;
+    // Full URL forms
+    try {
+      if (/^https?:\/\//i.test(val)) {
+        const u = new URL(val);
+        const parts = u.pathname.split('/').filter(Boolean);
+        if (parts[0] === 'channel' && parts[1]) return { type: 'id', value: parts[1] };
+        if (parts[0] && parts[0].startsWith('@')) return { type: 'handle', value: parts[0] };
+        if (parts[0] === 'c' && parts[1]) return { type: 'username', value: parts[1] };
+        if (parts[0] === 'user' && parts[1]) return { type: 'username', value: parts[1] };
+        if (parts[0]) return { type: 'handle', value: '@' + parts[0].replace(/^@/, '') };
+      }
+    } catch(e) { /* not a URL, fall through */ }
+    if (val.startsWith('@')) return { type: 'handle', value: val };
+    if (/^UC[a-zA-Z0-9_-]{20,}$/.test(val)) return { type: 'id', value: val };
+    return { type: 'handle', value: '@' + val.replace(/^@/, '') };
+  }
+
+  async function apiGet(path, params){
+    const url = new URL('https://www.googleapis.com/youtube/v3/' + path);
+    Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+    const res = await fetch(url.toString());
+    const data = await res.json();
+    if (!res.ok) {
+      const msg = (data && data.error && data.error.message) ? data.error.message : ('Request failed (' + res.status + ')');
+      throw new Error(msg);
+    }
+    return data;
+  }
+
+  async function resolveChannel(key, parsed){
+    const base = { part: 'snippet,contentDetails', key };
+    if (parsed.type === 'id') {
+      return apiGet('channels', { ...base, id: parsed.value });
+    }
+    if (parsed.type === 'handle') {
+      const data = await apiGet('channels', { ...base, forHandle: parsed.value });
+      if (data.items && data.items.length) return data;
+      // fallback to search if forHandle unsupported/misses
+      const search = await apiGet('search', { part: 'snippet', q: parsed.value, type: 'channel', maxResults: 1, key });
+      if (search.items && search.items.length) {
+        return apiGet('channels', { ...base, id: search.items[0].snippet.channelId });
+      }
+      return data;
+    }
+    if (parsed.type === 'username') {
+      const data = await apiGet('channels', { ...base, forUsername: parsed.value });
+      if (data.items && data.items.length) return data;
+      const search = await apiGet('search', { part: 'snippet', q: parsed.value, type: 'channel', maxResults: 1, key });
+      if (search.items && search.items.length) {
+        return apiGet('channels', { ...base, id: search.items[0].snippet.channelId });
+      }
+      return data;
+    }
+    throw new Error('Could not understand that channel reference.');
+  }
+
+  async function fetchAllVideos(){
+    const key = apiKeyInput.value.trim();
+    const raw = channelInput.value;
+    if (!key) { setStatus('Add your API key first.', true); return; }
+    const parsed = parseChannelInput(raw);
+    if (!parsed) { setStatus('Enter a channel handle, URL, or ID.', true); return; }
+
+    setBusy(true);
+    setStatus('Resolving channel…');
+    videos = [];
+    resultsArea.innerHTML = '';
+
+    try {
+      const chanData = await resolveChannel(key, parsed);
+      if (!chanData.items || !chanData.items.length) {
+        throw new Error('No channel found for "' + raw + '".');
+      }
+      const channel = chanData.items[0];
+      channelTitle = channel.snippet.title;
+      const uploadsId = channel.contentDetails.relatedPlaylists.uploads;
+
+      setStatus('Found "' + channelTitle + '" — pulling uploads…');
+
+      let pageToken = '';
+      let page = 0;
+      do {
+        const data = await apiGet('playlistItems', {
+          part: 'snippet',
+          playlistId: uploadsId,
+          maxResults: 50,
+          pageToken: pageToken,
+          key
+        });
+        page++;
+        (data.items || []).forEach(item => {
+          const vid = item.snippet.resourceId && item.snippet.resourceId.videoId;
+          if (!vid) return;
+          videos.push({
+            title: item.snippet.title,
+            videoId: vid,
+            url: 'https://www.youtube.com/watch?v=' + vid
+          });
+        });
+        pageToken = data.nextPageToken || '';
+        setStatus('Pulled ' + videos.length + ' videos so far (page ' + page + ')…');
+      } while (pageToken);
+
+      setStatus('Done — ' + videos.length + ' videos from "' + channelTitle + '".');
+      countBadge.innerHTML = '<b>' + videos.length + '</b> videos · ' + escapeHtml(channelTitle);
+      renderTable();
+    } catch (err) {
+      setStatus(err.message || 'Something went wrong.', true);
+      renderEmpty();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function renderEmpty(){
+    resultsArea.innerHTML = '<div class="empty">No videos yet. Fetch a channel above to build the list.</div>';
+  }
+
+  function renderTable(){
+    if (!videos.length) { renderEmpty(); return; }
+    const rows = videos.map((v, i) => `
+      <tr>
+        <td class="idx">${i + 1}</td>
+        <td class="vid-title">${escapeHtml(v.title)}</td>
+        <td class="vid-url">
+          <a href="${v.url}" target="_blank" rel="noopener">${v.url}</a>
+          <button class="copy-row" data-idx="${i}" title="Copy URL">copy</button>
+        </td>
+      </tr>`).join('');
+
+    resultsArea.innerHTML = `
+      <div class="toolbar">
+        <div class="hint" style="margin:0;">${videos.length} rows</div>
+        <div class="toolbar-actions">
+          <button class="btn-ghost" id="copyAllBtn">Copy as text</button>
+          <button class="btn-ghost" id="exportCsvBtn">Export CSV</button>
+          <button class="btn-ghost" id="exportJsonBtn">Export JSON</button>
+        </div>
+      </div>
+      <div class="panel" style="padding:0; overflow:hidden;">
+        <table>
+          <thead><tr><th class="num">#</th><th>Title</th><th>Video URL</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+
+    document.getElementById('copyAllBtn').addEventListener('click', copyAllAsText);
+    document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
+    document.getElementById('exportJsonBtn').addEventListener('click', exportJson);
+    resultsArea.querySelectorAll('.copy-row').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const v = videos[Number(btn.dataset.idx)];
+        navigator.clipboard.writeText(v.url).then(() => {
+          const orig = btn.textContent;
+          btn.textContent = 'copied';
+          setTimeout(() => { btn.textContent = orig; }, 1000);
+        });
+      });
+    });
+  }
+
+  function copyAllAsText(){
+    const text = videos.map(v => v.title + '\t' + v.url).join('\n');
+    navigator.clipboard.writeText(text).then(() => setStatus('Copied ' + videos.length + ' rows to clipboard.'));
+  }
+
+  function download(filename, content, mime){
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function csvEscape(s){
+    const str = String(s);
+    return /[",\n]/.test(str) ? '"' + str.replace(/"/g, '""') + '"' : str;
+  }
+
+  function exportCsv(){
+    const lines = ['title,url'].concat(videos.map(v => csvEscape(v.title) + ',' + csvEscape(v.url)));
+    download((channelTitle || 'videos') + '.csv', lines.join('\n'), 'text/csv');
+  }
+
+  function exportJson(){
+    download((channelTitle || 'videos') + '.json', JSON.stringify(videos, null, 2), 'application/json');
+  }
+
+  fetchBtn.addEventListener('click', fetchAllVideos);
+  channelInput.addEventListener('keydown', e => { if (e.key === 'Enter') fetchAllVideos(); });
+  apiKeyInput.addEventListener('keydown', e => { if (e.key === 'Enter') fetchAllVideos(); });
+
+  renderEmpty();
+})();
+</script>
